@@ -3,6 +3,7 @@ import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { getAuth,signInWithCredential,signInWithPopup,GoogleAuthProvider } from "firebase/auth"
+import { getFirestore,getDoc,setDoc,doc } from "@firebase/firestore"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -34,3 +35,30 @@ provider.setCustomParameters({
 
 export const auth = new getAuth();
 export const signInWithGooglePopup = () =>  signInWithPopup(auth,provider) 
+
+export const db = getFirestore();
+export const createUserDocumentFromAuth = async (authUser) => {
+    // we need to see if there's a document reference
+    // create user reference Doc preparation for the creation
+    const userRefDoc = doc(db,'users',authUser.uid)
+
+    //to check if there's an instance of this document or not
+    const userSnapData= await getDoc(userRefDoc);
+    if(!userSnapData.exists()){
+        const {email,displayName}=authUser;
+        try{
+            await setDoc(userRefDoc,{email,displayName,createAt:new Date()})
+        }
+        catch(e){
+            console.log(`Failed to create user: ${e.message}`)
+        }
+    }
+
+    return userSnapData
+    //if user data doens't exist
+    //create / set the document with the data for userAuth in my collecion
+
+
+    //if user data exist
+    //return user snap data
+}
