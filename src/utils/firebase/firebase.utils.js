@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getAuth,signInWithPopup,GoogleAuthProvider, signInWithRedirect } from "firebase/auth"
+import { getAuth,signInWithPopup,GoogleAuthProvider, signInWithRedirect,createUserWithEmailAndPassword } from "firebase/auth"
 import { getFirestore,getDoc,setDoc,doc } from "@firebase/firestore"
 
 // Your web app's Firebase configuration
@@ -40,9 +40,10 @@ export const signInWithGooglePopup = () =>  signInWithPopup(auth,providerGoogle)
 export const signInWithGoogleRedirect = () =>  signInWithRedirect(auth,providerGoogle) 
 
 export const db = getFirestore();
-export const createUserDocumentFromAuth = async (authUser) => {
+export const createUserDocumentFromAuth = async (authUser,additionalInfos = {}) => {
     // we need to see if there's a document reference
     // create user reference Doc preparation for the creation
+    if(!authUser) return;
     const userRefDoc = doc(db,'users',authUser.uid)
 
     //to check if there's an instance of this document or not
@@ -50,7 +51,7 @@ export const createUserDocumentFromAuth = async (authUser) => {
     if(!userSnapData.exists()){
         const {email,displayName}=authUser;
         try{
-            await setDoc(userRefDoc,{email,displayName,createAt:new Date()})
+            await setDoc(userRefDoc,{email,displayName,createAt:new Date(),...additionalInfos})
         }
         catch(e){
             console.log(`Failed to create user: ${e.message}`)
@@ -64,4 +65,10 @@ export const createUserDocumentFromAuth = async (authUser) => {
 
     //if user data exist
     //return user snap data
+}
+
+export const createNewAuthUserWithEmailAndPassword = async (email,password) => {
+    if(!email || !password) return;
+    
+    return await createUserWithEmailAndPassword(auth,email,password);
 }
