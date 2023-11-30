@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
-import { getAuth,signInWithCredential,signInWithPopup,GoogleAuthProvider } from "firebase/auth"
+import { getAuth,signInWithPopup,GoogleAuthProvider, signInWithRedirect } from "firebase/auth"
 import { getFirestore,getDoc,setDoc,doc } from "@firebase/firestore"
 
 // Your web app's Firebase configuration
@@ -27,14 +27,17 @@ const firebaseConfig = {
 // Initialize Firebase
 const firebaseApp = initializeApp(firebaseConfig);
 
-const provider = new GoogleAuthProvider();
+const providerGoogle = new GoogleAuthProvider();
 
-provider.setCustomParameters({
+providerGoogle.setCustomParameters({
     prompt: "select_account"
 })
 
 export const auth = new getAuth();
-export const signInWithGooglePopup = () =>  signInWithPopup(auth,provider) 
+
+//it can be multiple provider Github/google/facebook
+export const signInWithGooglePopup = () =>  signInWithPopup(auth,providerGoogle) 
+export const signInWithGoogleRedirect = () =>  signInWithRedirect(auth,providerGoogle) 
 
 export const db = getFirestore();
 export const createUserDocumentFromAuth = async (authUser) => {
