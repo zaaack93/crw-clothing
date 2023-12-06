@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import {
   SignInWithAuthUserWithEmailAndPassword,
   createNewAuthUserWithEmailAndPassword,
@@ -8,6 +8,7 @@ import {
 import FormInput from "../form-input/form-input.component";
 import "./sign-in-form.styles.scss";
 import Button from "../button/button.component";
+import { UserContext } from "../../contexts/user.context";
 
 const initSignUpFormField = {
   email: "",
@@ -15,6 +16,8 @@ const initSignUpFormField = {
 };
 
 const SignInForm = () => {
+  const { setCurrentUser } = useContext(UserContext);
+
   const [signUpFields, setSignUpFields] = useState(initSignUpFormField);
   const { email, password } = signUpFields;
   const handleChange = (e) => {
@@ -31,11 +34,13 @@ const SignInForm = () => {
   const submitHandle = async (e) => {
     e.preventDefault();
     try {
-      const response = await SignInWithAuthUserWithEmailAndPassword(
+      const { user } = await SignInWithAuthUserWithEmailAndPassword(
         email,
         password
       );
-      console.log(response);
+      console.log(user);
+      setCurrentUser(user)
+
       resetSignUpForm();
     } catch (e) {
         if(e.code==='auth/invalid-credential'){
